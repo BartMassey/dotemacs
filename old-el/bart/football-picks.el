@@ -1,8 +1,8 @@
 ;; Major Mode To Pick Football Games
 ;; Shawn Wolfe and Bart Massey 10/92
+;; Last hacked by Bart 11/93
 
-;This is a "full-featured" 
-;football-picks-mode for emacs.  Thanks for the idea :-( :-).
+;This is a "full-featured" football-picks-mode for emacs.
 ;The only things it expects from the e-mail message containing
 ;the week's picks are (the things in slashes are just regexps):
 ;
@@ -16,14 +16,13 @@
 ;	- The second line of the picks is a bunch of dashes
 ;	which "underline" the stuff in the first line.
 ;
-;	- There will be at least two columns separating each
-;	favorite team name from the spread value (don't ask).
+;	- At least two columns separate each favorite team name from
+;	the spread value (don't ask).
+;
+;	- The picks end with the line  /^---$/ or at EOF.
 ;
 ;	- Lines starting /^[A-Za-z0-9]/ are picks.  All
-;	others aren't.
-;
-;All of the above assumptions
-;have been followed by your format so far.
+;	others aren't.  Blank lines are removed.
 ;
 ;To use this, save the emacs lisp code below in an emacs
 ;lisp library directory (personal or system) and then stick
@@ -36,6 +35,7 @@
 ;When you are pointing at a team you wish to pick, use ^@ to
 ;"mark" your pick.  You can change the person you're picking
 ;for with ^C-p , and the week you're picking for with ^C-w .
+;You can comment the current pick with ^C-c .
 ;
 ;When you've picked all the games, say ^C-s .  This will prompt
 ;you for the name of a file, and then save a formatted mail
@@ -45,10 +45,8 @@
 ;Things still to be done:
 ;	- Better error recovery (esp. when not all games
 ;	have been picked).
-;
-;Feel free to give these bits to everybody.
-;
-;						Bart
+;       - Better file handling.
+;       - emacs 19 compatibility (when the lisp manual comes out)
 
 (autoload 'mail-send "sendmail" nil t)
 
@@ -105,8 +103,13 @@
   )
 (make-variable-buffer-local 'football-picks-old-buffer-name)
 
-;; This puts the buffer in football picks mode.
-;; It should be run only on a properly formatted buffer.
+;; string to use for comments
+(defvar football-picks-comment-string "--- "
+  "Comment indicator in football picks."
+  )
+(make-variable-buffer-local 'football-picks-comment-string)
+
+;; this is the command to enter picks mode
 (defun football-picks-mode ()
   "Major mode for making football picks.
 The picks are e-mailed by the pool manager in a special format.
@@ -118,20 +121,36 @@ The picks are e-mailed by the pool manager in a special format.
   (use-local-map football-picks-mode-map)
   (auto-save-mode nil)
   (football-picks-set-buffer-name)
-  (goto-char (point-min))
-  (forward-line 1)
-  (let (eol (point))
+  (save-excursion
+    (if (= football-picks-week -1)
+	(progn
+	 (goto-char (point-min))
+	 (forward-line 1)
+	 (let ((nl (point)))
+	   (goto-char (point-min))
+	   (let ((w (re-search-forward "[Ww]eek [0-9]+" nl t)))
+	     (if w
+		 (progn
+		  (goto-char (point-min))
+		  (re-search-forward "[Ww]eek " nl)
+		  (setq football-picks-week
+			(string-to-int (buffer-substring (point) w)))))))))
     (goto-char (point-min))
-    (re-search-forward "^- Favorite" eol nil)
-    (re-search-forward "- Underdog$" eol nil)
-    (setq football-picks-underdog-column (- (current-column) 10))
+    (forward-line 1)
+    (let (eol (point))
+      (goto-char (point-min))
+      (re-search-forward "^- Favorite" eol nil)
+      (re-search-forward "- Underdog$" eol nil)
+      (setq football-picks-underdog-column (- (current-column) 10))
+      )
     )
-  (goto-char (point-min))
-  (football-picks-next)
+  (beginning-of-line)
+  (if (not (football-picks-selection-char (char-after (point))))
+      (football-picks-next))
   )
 
 (defun football-picks ()
-  "Major mode for the football picks"
+  "Make football picks."
   (interactive)
   (set-visited-file-name nil)
   (setq buffer-read-only nil)
@@ -212,8 +231,11 @@ If the last line is empty, it is skipped on wrap."
     (re-search-forward "^Favorite" (point-max) nil)
     (beginning-of-line nil)
     (delete-region (point-min) (point))
-    (re-search-forward "^$")
+    (forward-line 2)
+    (re-search-forward "---" (point-max) 'move)
     (delete-region (point) (point-max))
+    (goto-char (point-min))
+    (delete-matching-lines "^[ 	]*$")
     ;; find underdog column
     (goto-char (point-min))
     (end-of-line nil)
@@ -270,8 +292,7 @@ If the last line is empty, it is skipped on wrap."
 	  (let ()
 	    (football-picks-mail-fixup-pick)
 	    (setq done (= (point) (point-max)))
-	    (if (and (not done) (football-picks-comment-char
-				 (char-after (point))))
+	    (if (and (not done) (football-picks-at-comment))
 		(let ((tmpbol (point)))
 		  (backward-char 1)
 		  (delete-region tmpbol (point))
@@ -288,10 +309,11 @@ If the last line is empty, it is skipped on wrap."
       (setq done (= (point) (point-max)))
       )
     )
-  (goto-char (point-min))
+;  (goto-char (point-min))
+;  (replace-regexp "^" "  ")
   (goto-char (point-min))
   (insert "To: " football-picks-mail-addr "\n")
-  (insert "Subject: " football-picks-person
+  (insert "Subject: [pool] " football-picks-person
 	  "'s Picks (For Week " (football-picks-week-string) ")\n")
   (insert "--text follows this line--\n")
 ; (insert football-picks-person
@@ -349,7 +371,7 @@ If the last line is empty, it is skipped on wrap."
 
     
 (defun football-picks-mail-send ()
-  "Send the picks to the pick-manager"
+  "Send the picks to the pick-manager."
   (interactive)
   (let ((v (football-picks-buffer-local-variables)) (b (current-buffer)))
     (let ((c (get-buffer-create "Football picks mail message")))
@@ -402,38 +424,53 @@ If the last line is empty, it is skipped on wrap."
   (football-picks-set-buffer-name)
   )
 
-(defun football-picks-comment-pick (comment)
-  "Attach a comment to the current football pick."
-  (interactive "sComment: ")
-  (let ((current (point)))
+(defun football-picks-at-comment ()
+  (let ((current (point))
+	(answer nil))
     (forward-line 1)
-    (if (and
-	 (not (= (point) (point-max)))
-	 (football-picks-comment-char (char-after (point))))
-	(let ((current (point)))
-	  (forward-line 1)
-	  (delete-region current (point))
-	  )
-      )
-    (open-line 1)
-    (insert "--- " comment)
+    (let ((comment (buffer-substring current (point))))
+      (if (and
+	   (>= (length comment) 4)
+	   (string-equal
+	    (substring comment 0 4)
+	    football-picks-comment-string))
+	  (setq answer comment)))
     (goto-char current)
-    )
-  )
+    answer))
+
+(defun football-picks-get-comment ()
+  (let ((current (point))
+	(old-comment ""))
+    (forward-line 1)
+    (let ((comment (football-picks-at-comment)))
+      (if comment
+	  (let ((current (point)))
+	    (forward-line 1)
+	    (delete-region current (point))
+	    (setq
+	     old-comment
+	     (substring comment 4 (- (length comment) 1))))))
+    (goto-char current)
+    (list (read-string "Comment: " old-comment))))
+
+(defun football-picks-comment-pick (comment)
+  "Attach a COMMENT to the current football pick."
+  (interactive (football-picks-get-comment))
+  (if (and comment (not (string-equal comment "")))
+      (let ((current (point)))
+	(forward-line 1)
+	(open-line 1)
+	(insert "--- " comment)
+	(goto-char current))))
 
 (defun football-picks-selection-char (ch)
   "Character is a football picks selection char."
   (or (= ch ?\  ) (= ch ?* ))
   )
 
-(defun football-picks-comment-char (ch)
-  "Character is a football picks comment char."
-  (= ch ?- )
-  )
-
 ;; this moves the cursor to the "next pick"
 (defun football-picks-next ()
-  "Move to the next game to be picked"
+  "Move to the next game to be picked."
   (interactive)
   (beginning-of-line nil)
   (let ((not-wrapped (forward-line-wrapping)))
@@ -448,7 +485,7 @@ If the last line is empty, it is skipped on wrap."
 
 ;; this moves the cursor to the "previous pick"
 (defun football-picks-prev ()
-  "Move to the previous game to be picked"
+  "Move to the previous game to be picked."
   (interactive)
   (beginning-of-line nil)
   (let ((not-wrapped (backward-line-wrapping)))
@@ -515,11 +552,12 @@ If the last line is empty, it is skipped on wrap."
   (football-picks-underdog)
   )
 
-(defun football-picks-insert-comment (comment)
-  "insert comment below this line"
-  (interactive "s")
-  (end-of-line nil)
-  (newline 1)
-  (indent-to-column 4)
-  (insert comment)
-)
+;; replaced by football-picks-comment-pick
+;(defun football-picks-insert-comment (comment)
+;  "Insert COMMENT below this line."
+;  (interactive "s")
+;  (end-of-line nil)
+;  (newline 1)
+;  (indent-to-column 4)
+;  (insert comment)
+;)
