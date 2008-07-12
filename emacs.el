@@ -300,7 +300,7 @@
   (autoload 'page-mode "page-mode" "Page-oriented display" t)
 
 ; UTF-8
-  (set-utf8)
+  (utf8-ify)
 
 ; Thank you newer emacs for choosing the wrong default
   (setq inhibit-splash-screen t)
@@ -506,6 +506,19 @@
   (interactive "*fAttachment: ")
   (insert (shell-command-to-string (concat mh-attach-command " \"" file "\""))))
 
-(defun set-utf8 ()
-  (prefer-coding-system 'utf-8-unix)
+; I don't want anything but utf-8 really.
+; It seems there should be a single call to do all this, but if so I
+; haven't found it.  -- Carl Worth 26 June 2005
+(defun utf8-ify ()
+  (prefer-coding-system 'utf-8)
+  (setq default-buffer-file-coding-system 'utf-8)
+  (setq default-file-name-coding-system 'utf-8)
+  (setq default-process-coding-system (cons 'utf-8 'utf-8))
+  (setq message-draft-coding-system 'utf-8)
+  (setq message-send-coding-system 'utf-8)
+  (set-keyboard-coding-system 'utf-8)
+  (set-terminal-coding-system 'utf-8)
+  (setq mm-coding-system-priorities '(utf-8))
+  (setq file-coding-system-alist
+	(cons '("" . utf-8) file-coding-system-alist))
   (setq default-mime-charset 'utf-8))
