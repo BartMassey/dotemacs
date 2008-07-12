@@ -301,6 +301,7 @@
 
 ; UTF-8
   (prefer-coding-system 'utf-8)
+  (setq default-mime-charset 'utf-8)
 
 ; Thank you newer emacs for choosing the wrong default
   (setq inhibit-splash-screen t)
@@ -505,19 +506,3 @@
   "Insert a properly-formatted attachment line for FILE into an MH message."
   (interactive "*fAttachment: ")
   (insert (shell-command-to-string (concat mh-attach-command " \"" file "\""))))
-
-; I don't want anything but utf-8 really.
-; It seems there should be a single call to do all this, but if so I
-; haven't found it.  -- Carl Worth 26 June 2005
-(defun utf8-ify ()
-  (setq default-buffer-file-coding-system 'utf-8)
-  (setq default-file-name-coding-system 'utf-8)
-  (setq default-process-coding-system (cons 'utf-8 'utf-8))
-  (setq message-draft-coding-system 'utf-8)
-  (setq message-send-coding-system 'utf-8)
-  (set-keyboard-coding-system 'utf-8)
-  (set-terminal-coding-system 'utf-8)
-  (setq mm-coding-system-priorities '(utf-8))
-  (setq file-coding-system-alist
-	(cons '("" . utf-8) file-coding-system-alist))
-  (setq default-mime-charset 'utf-8))
