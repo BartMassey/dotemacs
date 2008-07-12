@@ -1,8 +1,8 @@
 (defun my-init ()
 
-  (setq new-emacs nil)
-  (if (not (null (string-match "19.*" emacs-version)))
-     (setq new-emacs t))
+  (setq new-emacs t)
+  (if (not (null (string-match "18.*" emacs-version)))
+     (setq new-emacs nil))
 
 ; make sure things get loaded correctly
   (setq load-path
@@ -63,7 +63,18 @@
   (global-set-key "\C-X4t" 'find-tag-other-window)
   (global-set-key "\et" 'find-tag)
   (global-set-key "\C-X\C-I" 'insert-file)
+  (global-set-key "\eq" 'query-replace)
+  (global-set-key "\C-X<" 'shift-region-left)
+  (global-set-key "\C-X>" 'shift-region-right)
+  (global-set-key "\er" 'replace-regexp)
   (setq insert-default-directory nil)
+  (setq-default fill-column 60)
+  (setq-default command-line-default-directory ".")
+  (setq-default default-directory ".")
+  (defun fix-directory ()
+    (setq default-directory command-line-default-directory))
+;;; (setq find-file-hooks
+;;;    (append find-file-hooks '(fix-directory)))
 
 ; make sure we can flame on demand
   (autoload 'flame "flame" nil t)
@@ -118,30 +129,30 @@
   (if (not new-emacs)
     (load-library "sml-init"))
 
-; GNU Smalltalk
-  (setq auto-mode-alist (cons '("\\.st$" . smalltalk-mode) auto-mode-alist))
-  (autoload 'smalltalk-mode "st" "Major mode for editing Smalltalk code." t)
-
-; GNUS is kinda neat
-  (autoload 'gnus "gnus" "Read network news." t)
-  (autoload 'gnus-post-news "gnuspost" "Post a network news article." t)
-  (setq gnus-default-article-saver 'gnus-Subject-save-in-file)
-  (setq gnus-article-save-directory "~/news")
-  (setq gnus-use-generic-from t)
-  (setq gnus-Info-directory "~/class/gnus/info")
-  (setq gnus-novice-user nil)
-  (setq gnus-save-all-headers t)
-  (setq gnus-auto-select-first nil)
-  (setq gnus-auto-select-next 'quietly)
-  (setq gnus-break-pages nil)
-  (setq gnus-mail-reply-method (function gnus-mail-reply-using-mhe))
-  (setq gnus-mail-forward-method (function gnus-mail-reply-using-mhe))
-  (setq gnus-local-timezone t)
-  (let ((ev (getenv "NNTPSERVER")))
-    (if ev
-	(setq gnus-nntp-server ev)
-      )
-    )
+;; GNU Smalltalk
+;  (setq auto-mode-alist (cons '("\\.st$" . smalltalk-mode) auto-mode-alist))
+;  (autoload 'smalltalk-mode "st" "Major mode for editing Smalltalk code." t)
+;
+;; GNUS is kinda neat
+;  (autoload 'gnus "gnus" "Read network news." t)
+;  (autoload 'gnus-post-news "gnuspost" "Post a network news article." t)
+;  (setq gnus-default-article-saver 'gnus-Subject-save-in-file)
+;  (setq gnus-article-save-directory "~/news")
+;  (setq gnus-use-generic-from t)
+;  (setq gnus-Info-directory "~/class/gnus/info")
+;  (setq gnus-novice-user nil)
+;  (setq gnus-save-all-headers t)
+;  (setq gnus-auto-select-first nil)
+;  (setq gnus-auto-select-next 'quietly)
+;  (setq gnus-break-pages nil)
+;  (setq gnus-mail-reply-method (function gnus-mail-reply-using-mhe))
+;  (setq gnus-mail-forward-method (function gnus-mail-reply-using-mhe))
+;  (setq gnus-local-timezone t)
+;  (let ((ev (getenv "NNTPSERVER")))
+;    (if ev
+;	(setq gnus-nntp-server ev)
+;      )
+;    )
 ;  (setq gnus-Mark-article-hook
 ;	(function
 ;	 (lambda ()
@@ -155,8 +166,8 @@
 ;; gnus-Article-prepare-hook seems perfect...
 
 ; football picks
-  (autoload 'football-picks "football-picks" "Pick football games." t)
-  (autoload 'football-picks-mode "football-picks" "Football games picks mode." t)
+;  (autoload 'football-picks "football-picks" "Pick football games." t)
+;  (autoload 'football-picks-mode "football-picks" "Football games picks mode." t)
   
 ; Bill Trost-isms follow...
 
@@ -169,17 +180,21 @@
   (global-set-key "\C-R" 'isearch-backward-regexp)
 
 ; minibuffer setup
-  (setq minibuffer-local-completion-map
-	'(keymap
-	  (?? . minibuffer-completion-help)
-	  (9 . minibuffer-complete-word)
-	  (32 . minibuffer-complete)
-	  (10 . exit-minibuffer)
-	  (13 . exit-minibuffer)
-	  (7 . abort-recursive-edit)
+  (if (not new-emacs)
+    (setq minibuffer-local-completion-map
+	  '(keymap
+	    (?? . minibuffer-completion-help)
+	    (9 . minibuffer-complete-word)
+	    (32 . minibuffer-complete)
+	    (10 . exit-minibuffer)
+	    (13 . exit-minibuffer)
+	    (7 . abort-recursive-edit)
+	    )
 	  )
-	)
+    )
 
+  (if new-emacs
+      (menu-bar-mode nil))
 )
 
 (defun next-win ()
@@ -242,3 +257,28 @@
       )
     )
   )
+
+(defun shift-region-left (START END ARG)
+  "indent-rigidly left (default 8 columns)"
+  (interactive "r\nP")
+  (if ARG
+      (indent-rigidly START END (- ARG))
+    (indent-rigidly START END -8)))
+
+(defun shift-region-right (START END ARG)
+  "indent-rigidly right (default 8 columns)"
+  (interactive "r\nP")
+  (if ARG
+      (indent-rigidly START END ARG)
+    (indent-rigidly START END 8)))
+
+(setf ffn find-file-noselect)
+  (defun find-file-noselect (filename &optional nowarn rawfile)
+  "Read file FILENAME into a buffer and return the buffer.
+If a buffer exists visiting FILENAME, return that one, but
+verify that the file has not changed since visited or saved.
+The buffer is not selected, just returned to the caller.
+Optional first arg NOWARN non-nil means suppress any warning messages.
+Optional second arg RAWFILE non-nil means the file is read literally."
+    (let ((default-directory nil))
+      (ffn NAME)))
