@@ -5,8 +5,7 @@
 
 ;; make sure things get loaded correctly
   (setq load-path
-	(append (relative-paths "etc/emacs" "etc/emacs/gnus")
-		load-path))
+	(append (relative-paths "etc/emacs" "etc/emacs/gnus") load-path))
 
 ;; swap backspace and delete
 ;; map ^\ to ^S
@@ -79,8 +78,7 @@
   (setq-default fill-column 60)
   (setq-default command-line-default-directory ".")
   (setq-default default-directory ".")
-;  (setq find-file-hooks
-;      (cons 'clear-buffer-default-directory find-file-hooks))
+; (add-hook find-file-hooks 'clear-buffer-default-directory)
 
 ; make sure we can flame on demand
   (autoload 'flame "flame" nil t)
@@ -102,7 +100,7 @@
   (setq require-final-newline t)
 
 ; put text mode in auto-indent, please
-  (setq text-mode-hook (function (lambda () (auto-fill-mode 1))))
+  (add-hook 'text-mode-hook (function (lambda () (auto-fill-mode 1))))
 
 ; since regular expressions are also case-folded...
   (setq case-fold-search nil)
@@ -118,7 +116,7 @@
 ;;;		       ))
   (global-set-key "\C-x\C-i" 'set-indent)
   (set-indent 4)
-;;;(add-hook 'c-mode-hook (function (lambda () (set-indent 4))))
+; (add-hook 'c-mode-hook (function (lambda () (set-indent 4))))
 
 ;; this is more important than "eval expression at point"
   (global-set-key "\C-X\C-E" 'my-compile)
@@ -216,9 +214,34 @@
 	(function (lambda () 
 		    (define-key
 		      scheme-mode-map
-		      "\M-j"
-		      (function indent-sexp)))))
+		      "\M-j"	
+	      (function indent-sexp)))))
 
+;; HTML mode
+;  (autoload 'html-mode "html-mode" "HTML major mode." t)
+   (auto-invoke-mode "\\.html\\'" 'html-mode)
+   (auto-invoke-mode "\\.htm\\'" 'html-mode)
+
+;; A jove-ism, really
+   (defalias 'read-only 'toggle-read-only)
+
+;; MH mode setup
+   (setq mh-progs "/pkgs/nmh/bin/")
+   (setq mh-lib "/pkgs/nmh/etc/")
+   (add-hook 'mh-letter-mode-hook
+	     (function (lambda ()
+			 (local-set-key "\C-c\C-A" 'mh-insert-attachment))))
+
+;; The new TAB behavior for text is *almost* right...
+;; (see indent-relative-close below)
+   (add-hook 'mh-letter-mode-hook
+	     (function (lambda ()
+			 (local-set-key "\t" 'indent-relative-close))))
+   (add-hook 'text-mode-hook
+	     (function (lambda ()
+			 (local-set-key "\t" 'indent-relative-close))))
+
+>>>>>>> b49c0e845f05afc336618de7ae8f64d835b52327:emacs.el
 ;; ZETA Z environment
   (if xemacs
       (progn
@@ -291,6 +314,7 @@
 ; Thank you newer emacs for choosing the wrong default
   (setq inhibit-splash-screen t)
 )
+
 
 (defun next-win ()
   "Go to next window."
@@ -371,6 +395,15 @@
   (compile my-compilation-command)
   (next-error))
 
+(defun auto-invoke-mode (pat mode)
+  (or (assoc pat auto-mode-alist)
+      (setq auto-mode-alist
+	    (cons (cons pat mode)
+	    auto-mode-alist))))
+
+(defun use-text-mode ()
+       (setq default-major-mode 'text-mode))
+
 (defun replace-in-region (start end regexp to-string)
   "Replace restricted to REGION of REGEXP with TO-STRING."
   (interactive "*r\nsReplace regexp: \nswith: " )
@@ -381,6 +414,50 @@
       (replace-match to-string nil nil))
     (widen)))
 
+(defun set-basic-offset (ARG)
+  "Bind c-basic-offset to given value."
+  (interactive "P")
+  (if ARG
+      (setq c-basic-offset ARG)))
+
+(defun right-margin-here ()
+  "Set fill column to current column"
+  (interactive)
+  (setq fill-column (current-column)))
+
+;; Stolen from indent-relative in indent.el -- it appears
+;; to be difficult to delegate here.
+(defun indent-relative-close (&optional unindented-ok)
+  "Like `indent-relative', but looks for an indent point
+   only in the immediately preceding line."
+  (interactive "P")
+  (if (and abbrev-mode
+	   (eq (char-syntax (preceding-char)) ?w))
+      (expand-abbrev))
+  (let ((start-column (current-column))
+	indent)
+    (save-excursion
+      (if (= (forward-line -1) 0)
+	  (let ((end (save-excursion (forward-line 1) (point))))
+	    (move-to-column start-column)
+	    ;; Is start-column inside a tab on this line?
+	    (if (> (current-column) start-column)
+		(backward-char 1))
+	    (or (looking-at "[ \t]")
+		unindented-ok
+		(skip-chars-forward "^ \t" end))
+	    (skip-chars-forward " \t" end)
+	    (or (= (point) end) (setq indent (current-column))))))
+    (if indent
+	(let ((opoint (point-marker)))
+	  (delete-region (point) (progn (skip-chars-backward " \t") (point)))
+	  (indent-to indent 0)
+	  (if (> opoint (point))
+	      (goto-char opoint))
+	  (move-marker opoint nil))
+      (tab-to-tab-stop))))
+
+>>>>>>> b49c0e845f05afc336618de7ae8f64d835b52327:emacs.el
 (defun html-outline-level ()
   "Create a new level in an HTML outline."
   (interactive)
@@ -432,3 +509,25 @@
 	   ("user" . "bart")
 	   ("server-url" . "http://fob.po8.org/xmlrpc.php")
 	   ("weblog" . "blog")))))
+
+(setq mh-attach-command "$HOME/bin/mi/mh-attach")
+(defun mh-insert-attachment (file)
+  "Insert a properly-formatted attachment line for FILE into an MH message."
+  (interactive "*fAttachment: ")
+  (insert (shell-command-to-string (concat mh-attach-command " \"" file "\""))))
+
+; I don't want anything but utf-8 really.
+; It seems there should be a single call to do all this, but if so I
+; haven't found it.  -- Carl Worth 26 June 2005
+(defun utf8-ify ()
+  (setq default-buffer-file-coding-system 'utf-8)
+  (setq default-file-name-coding-system 'utf-8)
+  (setq default-process-coding-system (cons 'utf-8 'utf-8))
+  (setq message-draft-coding-system 'utf-8)
+  (setq message-send-coding-system 'utf-8)
+  (set-keyboard-coding-system 'utf-8)
+  (set-terminal-coding-system 'utf-8)
+  (setq mm-coding-system-priorities '(utf-8))
+  (setq file-coding-system-alist
+	(cons '("" . utf-8) file-coding-system-alist))
+  (setq default-mime-charset 'utf-8))
