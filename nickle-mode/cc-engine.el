@@ -208,7 +208,8 @@
 	    (setq donep t))
 	   ;; CASE 9: Normal token.  At bob, we can end up at ws or a
 	   ;; comment, and last-begin shouldn't be updated then.
-	   ((not (looking-at "\\s \\|/[/*]"))
+	   ((not (or (looking-at "\\s ")
+		     (looking-at c-comment-start-regexp)))
 	    (setq last-begin (point)))
 	   ))))
     (goto-char last-begin)
@@ -484,7 +485,7 @@
 	     (setq state (parse-partial-sexp lim (point))
 		   lim (point))
 	     (while (not (nth 7 state))
-	       (search-forward "//")	; Should never fail.
+	       (re-search-forward comment-start)	; Should never fail.
 	       (setq state (parse-partial-sexp
 			    lim (point) nil nil state)
 		     lim (point)))
@@ -511,7 +512,7 @@
 	      ((eq (char-syntax (or (char-after) ?\ )) ?\") ; String.
 	       (cons (point) (or (c-safe (c-forward-sexp 1) (point))
 				 (point-max))))
-	      ((looking-at "/[/*]")	; Line or block comment.
+	      ((looking-at c-comment-start-regexp)	; Line or block comment.
 	       (cons (point) (progn (c-forward-comment 1) (point))))
 	      (t
 	       ;; Search backward.
@@ -561,7 +562,7 @@
 	      ((eq (char-syntax (or (char-after) ?\ )) ?\") ; String.
 	       (cons (point) (or (c-safe (c-forward-sexp 1) (point))
 				 (point-max))))
-	      ((looking-at "/[/*]")	; Line or block comment.
+	      ((looking-at c-comment-start-regexp)	; Line or block comment.
 	       (cons (point) (progn (c-forward-comment 1) (point))))
 	      (t
 	       ;; Search backward.
@@ -596,7 +597,7 @@
     (condition-case nil
 	(if (and (consp range) (progn
 				 (goto-char (car range))
-				 (looking-at "//")))
+				 (looking-at comment-start)))
 	    (let ((col (current-column))
 		  (beg (point))
 		  (bopl (c-point 'bopl))
@@ -605,13 +606,13 @@
 	      ;; comments which are preceded by code.
 	      (while (and (c-forward-comment -1)
 			  (>= (point) bopl)
-			  (looking-at "//")
+			  (looking-at comment-start)
 			  (= col (current-column)))
 		(setq beg (point)
 		      bopl (c-point 'bopl)))
 	      (goto-char end)
 	      (while (and (progn (skip-chars-forward " \t")
-				 (looking-at "//"))
+				 (looking-at comment-start))
 			  (= col (current-column))
 			  (prog1 (zerop (forward-line 1))
 			    (setq end (point)))))
@@ -628,7 +629,7 @@
       (save-excursion
 	(goto-char (car range))
 	(cond ((eq (char-syntax (or (char-after) ?\ )) ?\") 'string)
-	      ((looking-at "//") 'c++)
+	      ((looking-at comment-start) 'c++)
 	      (t 'c)))			; Assuming the range is valid.
     range))
 
@@ -2316,8 +2317,9 @@ brace."
 		(c-beginning-of-closest-statement)
 		(c-add-syntax 'statement-cont (c-point 'boi)))
 	       ;; CASE 10B.3: The body of a function declared inside a
-	       ;; normal block.  This can only occur in Pike.
-	       ((and (c-major-mode-is 'pike-mode)
+	       ;; normal block.  This can only occur in Pike and Nickle.
+	       ((and (or (c-major-mode-is 'pike-mode)
+			 (c-major-mode-is 'nickle-mode))
 		     (progn
 		       (goto-char indent-point)
 		       (not (c-looking-at-bos))))
@@ -2597,8 +2599,9 @@ brace."
 		  ))
 	    (c-add-syntax 'defun-block-intro (c-point 'boi)))
 	   ;; CASE 17G: First statement in a function declared inside
-	   ;; a normal block.  This can only occur in Pike.
-	   ((and (c-major-mode-is 'pike-mode)
+	   ;; a normal block.  This can only occur in Pike and Nickle.
+	   ((and (or (c-major-mode-is 'pike-mode)
+		     (c-major-mode-is 'nickle-mode))
 		 (progn
 		   (goto-char containing-sexp)
 		   (and (not (c-looking-at-bos))

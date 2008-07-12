@@ -37,13 +37,13 @@
 ;;; Commentary:
 
 ;; This package provides GNU Emacs major modes for editing C, C++,
-;; Objective-C, Java, IDL and Pike code.  As of the latest Emacs and
+;; Objective-C, Java, IDL, Pike, and Nickle code.  As of the latest Emacs and
 ;; XEmacs releases, it is the default package for editing these
 ;; languages.  This package is called "CC Mode", and should be spelled
 ;; exactly this way.
 
 ;; CC Mode supports K&R and ANSI C, ANSI C++, Objective-C, Java,
-;; CORBA's IDL, and Pike with a consistent indentation model across
+;; CORBA's IDL, Pike, and Nickle with a consistent indentation model across
 ;; all modes.  This indentation model is intuitive and very flexible,
 ;; so that almost any desired style of indentation can be supported.
 ;; Installation, usage, and programming details are contained in an
@@ -783,6 +783,68 @@ Key bindings:
   (c-update-modeline))
 
 
+;; Support for Nickle
+
+(defvar nickle-mode-abbrev-table nil
+  "Abbreviation table used in nickle-mode buffers.")
+(define-abbrev-table 'nickle-mode-abbrev-table
+  '(("else" "else" c-electric-continued-statement 0)
+    ("while" "while" c-electric-continued-statement 0)))
+
+(defvar nickle-mode-map ()
+  "Keymap used in nickle-mode buffers.")
+(if nickle-mode-map
+    nil
+  (setq nickle-mode-map (c-make-inherited-keymap))
+  ;; additional bindings
+  (define-key nickle-mode-map "\C-c\C-e" 'c-macro-expand))
+
+(easy-menu-define c-nickle-menu nickle-mode-map "Nickle Mode Commands"
+		  (c-mode-menu "Nickle"))
+
+;;;###autoload
+(defun nickle-mode ()
+  "Major mode for editing Nickle code.
+To submit a problem report, enter `\\[c-submit-bug-report]' from an
+idl-mode buffer.  This automatically sets up a mail buffer with
+version information already added.  You just need to add a description
+of the problem, including a reproducible test case, and send the
+message.
+
+To see what version of CC Mode you are running, enter `\\[c-version]'.
+
+The hook variable `nickle-mode-hook' is run with no args, if that value
+is bound and has a non-nil value.  Also the common hook
+`c-mode-common-hook' is run first.
+
+Key bindings:
+\\{nickle-mode-map}"
+  (interactive)
+  (c-initialize-cc-mode)
+  (kill-all-local-variables)
+  (set-syntax-table nickle-mode-syntax-table)
+  (setq major-mode 'nickle-mode
+ 	mode-name "Nickle"
+ 	local-abbrev-table nickle-mode-abbrev-table
+	abbrev-mode t)
+  (use-local-map nickle-mode-map)
+  (c-common-init)
+  (setq comment-start "# "
+ 	comment-end   ""
+	comment-start-skip "/\\*+ *\\|^#+ *"
+	c-keywords (c-identifier-re c-Nickle-keywords)
+ 	c-conditional-key c-Nickle-conditional-key
+	c-protection-key c-Nickle-protection-key
+  	c-class-key c-Nickle-class-key
+	c-comment-start-regexp c-Nickle-comment-start-regexp
+	c-access-key c-Nickle-access-key
+	c-recognize-knr-p t)
+  ;;(cc-imenu-init cc-imenu-nickle-generic-expression) ;FIXME
+  (run-hooks 'c-mode-common-hook)
+  (run-hooks 'nickle-mode-hook)
+  (c-update-modeline))
+
+
 ;; Helper for setting up Filladapt mode.  It's not used by CC Mode itself.
 
 (cc-bytecomp-defvar filladapt-token-table)
@@ -861,6 +923,7 @@ CC Mode by making sure the proper entries are present on
 		    ((eq major-mode 'java-mode) "Java")
 		    ((eq major-mode 'idl-mode)  "IDL")
 		    ((eq major-mode 'pike-mode) "Pike")
+		    ((eq major-mode 'nickle-mode) "Nickle")
 		    )
 	      ")")
       (let ((vars (append

@@ -88,8 +88,7 @@ Otherwise, this variable is nil. I.e. this variable is non-nil for
   (concat "constant\\|float\\|int\\|mapping\\|multiset\\|object\\|"
 	  "program\\|string\\|void"))
 (defconst c-Nickle-primitive-type-kwds
-  (concat "constant\\|float\\|int\\|mapping\\|multiset\\|object\\|"
-	  "program\\|string\\|void"))
+  "real\\|rational\\|int\\|poly\\|char\\|string\\|void\\|bool")
 
 ;; Declaration specifier keywords.
 (defconst c-C-specifier-kwds
@@ -105,6 +104,8 @@ Otherwise, this variable is nil. I.e. this variable is non-nil for
 (defconst c-Pike-specifier-kwds
   (concat "final\\|inline\\|local\\|nomask\\|optional\\|private\\|"
 	  "protected\\|static\\|variant"))
+(defconst c-Nickle-specifier-kwds
+  "auto\\|global\\|static\\|public\\|private\\|protected")
 
 ;; Class/struct declaration keywords.
 (defconst c-C-class-kwds "struct\\|union")
@@ -114,6 +115,7 @@ Otherwise, this variable is nil. I.e. this variable is non-nil for
 (defconst c-IDL-class-kwds
   (concat c-C++-class-kwds "\\|interface\\|valuetype"))
 (defconst c-Pike-class-kwds "class")
+(defconst c-Nickle-class-kwds "struct\\|union")
 
 ;; Keywords introducing other declaration-level blocks.
 (defconst c-C-extra-toplevel-kwds "extern")
@@ -123,6 +125,7 @@ Otherwise, this variable is nil. I.e. this variable is non-nil for
 ;;(defconst c-Java-extra-toplevel-kwds nil)
 (defconst c-IDL-extra-toplevel-kwds "module")
 ;;(defconst c-Pike-extra-toplevel-kwds nil)
+(defconst c-Nickle-extra-toplevel-kwds "namespace")
 
 ;; Keywords introducing other declaration-level constructs.
 (defconst c-C-other-decl-kwds "enum\\|typedef")
@@ -131,6 +134,8 @@ Otherwise, this variable is nil. I.e. this variable is non-nil for
 (defconst c-Java-other-decl-kwds "import\\|package")
 ;;(defconst c-IDL-other-decl-kwds nil)
 (defconst c-Pike-other-decl-kwds "import\\|inherit")
+(defconst c-Nickle-other-decl-kwds
+  (concat c-C-other-decl-kwds "\\|exception"))
 
 ;; Keywords that occur in declaration-level constructs.
 ;;(defconst c-C-decl-level-kwds nil)
@@ -139,6 +144,7 @@ Otherwise, this variable is nil. I.e. this variable is non-nil for
 (defconst c-Java-decl-level-kwds "extends\\|implements\\|throws")
 ;;(defconst c-IDL-decl-level-kwds nil)
 ;;(defconst c-Pike-decl-level-kwds nil)
+(defconst c-Nickle-decl-level-kwds "extend")
 
 ;; Protection label keywords in classes.
 ;;(defconst c-C-protection-kwds nil)
@@ -147,6 +153,7 @@ Otherwise, this variable is nil. I.e. this variable is non-nil for
 ;;(defconst c-Java-protection-kwds nil)
 ;;(defconst c-IDL-protection-kwds nil)
 ;;(defconst c-Pike-protection-kwds nil)
+;;(defconst c-Nickle-protection-kwds nil)
 
 ;; Statement keywords followed directly by a block.
 (defconst c-C-block-stmt-1-kwds "do\\|else")
@@ -157,6 +164,8 @@ Otherwise, this variable is nil. I.e. this variable is non-nil for
   (concat c-C-block-stmt-1-kwds "\\|finally\\|try"))
 ;;(defconst c-IDL-block-stmt-1-kwds nil)
 (defconst c-Pike-block-stmt-1-kwds c-C-block-stmt-1-kwds)
+(defconst c-Nickle-block-stmt-1-kwds
+  (concat c-C-block-stmt-1-kwds "\\|try"))
 
 ;; Statement keywords followed by a paren sexp and then by a block.
 (defconst c-C-block-stmt-2-kwds "for\\|if\\|switch\\|while")
@@ -166,6 +175,8 @@ Otherwise, this variable is nil. I.e. this variable is non-nil for
   (concat c-C++-block-stmt-2-kwds "\\|synchronized"))
 ;;(defconst c-IDL-block-stmt-2-kwds nil)
 (defconst c-Pike-block-stmt-2-kwds c-C-block-stmt-2-kwds)
+(defconst c-Nickle-block-stmt-2-kwds
+  (concat c-C-block-stmt-2-kwds "\\|twixt\\|catch"))
 
 ;; Statement keywords followed by an expression or nothing.
 (defconst c-C-simple-stmt-kwds "break\\|continue\\|goto\\|return")
@@ -176,6 +187,7 @@ Otherwise, this variable is nil. I.e. this variable is non-nil for
   (concat c-C-simple-stmt-kwds "\\|throw"))
 ;;(defconst c-IDL-simple-stmt-kwds nil)
 (defconst c-Pike-simple-stmt-kwds "break\\|continue\\|return")
+(defconst c-Nickle-simple-stmt-kwds "break\\|continue\\|raise\\|return")
 
 ;; Keywords introducing labels in blocks.
 (defconst c-C-label-kwds "case\\|default")
@@ -184,6 +196,7 @@ Otherwise, this variable is nil. I.e. this variable is non-nil for
 (defconst c-Java-label-kwds c-C-label-kwds)
 ;;(defconst c-IDL-label-kwds nil)
 (defconst c-Pike-label-kwds c-C-label-kwds)
+(defconst c-Nickle-label-kwds c-C-label-kwds)
 
 ;; Keywords that can occur anywhere in expressions.
 (defconst c-C-expr-kwds "sizeof")
@@ -194,6 +207,7 @@ Otherwise, this variable is nil. I.e. this variable is non-nil for
 ;;(defconst c-IDL-expr-kwds nil)
 (defconst c-Pike-expr-kwds
   (concat c-C-expr-kwds "\\|catch\\|class\\|gauge\\|lambda\\|predef"))
+;;(defconst c-Nickle-expr-kwds nil)
 
 ;; All keywords.
 (defconst c-C-keywords
@@ -249,12 +263,31 @@ Otherwise, this variable is nil. I.e. this variable is non-nil for
 	  "\\|" c-Pike-block-stmt-1-kwds "\\|" c-Pike-block-stmt-2-kwds
 	  "\\|" c-Pike-simple-stmt-kwds "\\|" c-Pike-label-kwds
 	  "\\|" c-Pike-expr-kwds))
+(defconst c-Nickle-keywords
+  (concat c-Nickle-primitive-type-kwds "\\|" c-Nickle-specifier-kwds
+	  "\\|" c-Nickle-class-kwds "\\|" c-Nickle-extra-toplevel-kwds
+	  "\\|" c-Nickle-other-decl-kwds
+	  "\\|" c-Nickle-decl-level-kwds
+	  ;; "\\|" c-Nickle-protection-kwds
+	  "\\|" c-Nickle-block-stmt-1-kwds "\\|" c-Nickle-block-stmt-2-kwds
+	  "\\|" c-Nickle-simple-stmt-kwds "\\|" c-Nickle-label-kwds
+	  ;; "\\|" c-Nickle-expr-kwds
+	  ))
 
 (defvar c-keywords nil)
 (make-variable-buffer-local 'c-keywords)
 
 ;; Keywords defining protection levels
-(defconst c-protection-key "\\<\\(public\\|protected\\|private\\)\\>")
+(defconst c-C-protection-key "\\<\\(public\\|protected\\|private\\)\\>")
+(defconst c-C++-protection-key c-C-protection-key)
+(defconst c-IDL-protection-key c-C-protection-key)
+(defconst c-ObjC-protection-key c-C-protection-key)
+(defconst c-Java-protection-key c-C-protection-key)
+(defconst c-Pike-protection-key c-C-protection-key)
+(defconst c-Nickle-protection-key nil)
+
+(defvar c-class-key c-C-protection-key)
+(make-variable-buffer-local 'c-protection-key)
 
 ;; Regexps introducing class definitions.
 (defconst c-C-class-key (c-paren-re c-C-class-kwds))
@@ -276,6 +309,7 @@ Otherwise, this variable is nil. I.e. this variable is non-nil for
    ;;"\\(\\s *implements *[^{]+{\\)?"	      ;maybe the adopted protocols list
    ))
 (defconst c-Pike-class-key (c-paren-re c-Pike-class-kwds))
+(defconst c-Nickle-class-key (c-paren-re c-Nickle-class-kwds))
 
 (defvar c-class-key c-C-class-key)
 (make-variable-buffer-local 'c-class-key)
@@ -302,6 +336,7 @@ Otherwise, this variable is nil. I.e. this variable is non-nil for
 (defconst c-ObjC-access-key (concat "@" c-protection-key))
 ;;(defconst c-Java-access-key nil)
 ;;(defconst c-Pike-access-key nil)
+(defconst c-Nickle-access-key nil)
 
 ;; keywords introducing conditional blocks
 (defconst c-C-conditional-key nil)
@@ -310,6 +345,7 @@ Otherwise, this variable is nil. I.e. this variable is non-nil for
 (defconst c-ObjC-conditional-key nil)
 (defconst c-Java-conditional-key nil)
 (defconst c-Pike-conditional-key nil)
+(defconst c-Nickle-conditional-key nil)
 
 (let ((all-kws "for\\|if\\|do\\|else\\|while\\|switch")
       (exc-kws "\\|try\\|catch")
@@ -321,7 +357,8 @@ Otherwise, this variable is nil. I.e. this variable is non-nil for
 	;; c-IDL-conditional-key is nil.
 	c-ObjC-conditional-key c-C-conditional-key
 	c-Java-conditional-key (concat front all-kws exc-kws thr-kws back)
-	c-Pike-conditional-key (concat front all-kws "\\|foreach" back)))
+	c-Pike-conditional-key (concat front all-kws "\\|foreach" back)
+	c-Nickle-conditional-key (concat front all-kws back)))
 
 (defvar c-conditional-key c-C-conditional-key)
 (make-variable-buffer-local 'c-conditional-key)
@@ -347,6 +384,7 @@ Otherwise, this variable is nil. I.e. this variable is non-nil for
 ;; We need to match all 3 Java style comments
 ;; 1) Traditional C block; 2) javadoc /** ...; 3) C++ style
 (defconst c-Java-comment-start-regexp "/\\(/\\|[*][*]?\\)")
+(defconst c-Nickle-comment-start-regexp "/\\*\\|^#")
 (defvar c-comment-start-regexp c-C++-comment-start-regexp)
 (make-variable-buffer-local 'c-comment-start-regexp)
 
@@ -524,6 +562,27 @@ are parsed.")
   (setq pike-mode-syntax-table (make-syntax-table))
   (c-populate-syntax-table pike-mode-syntax-table)
   (modify-syntax-entry ?@ "." pike-mode-syntax-table))
+
+(defun nickle-fixup-syntax-table (table)
+  ;; Undo C-mode stuff that don't work so good in Nickle
+  ;; Nickle, unlike all other C-like langauges, uses // exclusively
+  ;; as an operator (integer division).  It also has a line comment:
+  ;; a leading # as the first non-white.
+
+  ;; Emacs 19 & 20
+  (if (memq '1-bit c-emacs-features)
+      (modify-syntax-entry ?/  ". 14b" table))
+  (modify-syntax-entry ?# ". <" table))
+
+;;;###autoload
+(defvar nickle-mode-syntax-table nil
+  "Syntax table used in nickle-mode buffers.")
+(if nickle-mode-syntax-table
+    ()
+  (progn
+    (setq nickle-mode-syntax-table (make-syntax-table))
+    (c-populate-syntax-table nickle-mode-syntax-table)
+    (nickle-fixup-syntax-table nickle-mode-syntax-table)))
 
 
 ;; internal state variables

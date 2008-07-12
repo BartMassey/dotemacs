@@ -296,6 +296,7 @@ style comments."
 
 (defcustom-c-stylevar c-comment-prefix-regexp
   '((pike-mode . "//+!?\\|\\**")
+    (nickle-mode . "^#\\|\\**")
     (other . "//+\\|\\**"))
   "*Regexp to match the line prefix inside comments.
 This regexp is used to recognize the fill prefix inside comments for
@@ -308,12 +309,13 @@ looked up in the association list, and its value is used as the line
 prefix regexp.  If it's not found, then the symbol `other' is looked
 up and its value is used instead.
 
-The regexp should match the prefix used in both C++ style line
-comments and C style block comments, but it does not need to match a
-block comment starter.  In other words, it should at least match
-\"//\" for line comments and the string in `c-block-comment-prefix',
-which is sometimes inserted by CC Mode inside block comments.  It
-should not match any surrounding whitespace.
+The regexp should match the prefix used in both C++ style
+line comments and C style block comments, but it does not
+need to match a block comment starter.  In other words, it
+should at least match \"//\" or whatever is appropriate for
+line comments and the string in `c-block-comment-prefix',
+which is sometimes inserted by CC Mode inside block
+comments.  It should not match any surrounding whitespace.
 
 Note that CC Mode modifies other variables from this one at mode
 initialization, so you will need to do \\[c-mode] (or whatever mode
@@ -336,8 +338,10 @@ you're currently using) if you change it in a CC Mode buffer."
 		  (const :format "IDL   " idl-mode) (regexp :format "%v"))
 	    (cons :format "%v"
 		  (const :format "Pike  " pike-mode) (regexp :format "%v")))
+	    (cons :format "%v"
+		  (const :format "Nickle  " nickle-mode) (regexp :format "%v")))
 	   (cons :format "    %v"
-		 (const :format "Other " other) (regexp :format "%v"))))
+		 (const :format "Other " other) (regexp :format "%v")))
   :group 'c)
 
 (defcustom c-ignore-auto-fill '(string cpp code)
@@ -621,6 +625,8 @@ can always override the use of `c-default-style' by making calls to
 		  (const :format "IDL   " idl-mode) (string :format "%v"))
 	    (cons :format "%v"
 		  (const :format "Pike  " pike-mode) (string :format "%v"))
+	    (cons :format "%v"
+		  (const :format "Nickle  " nickle-mode) (string :format "%v"))
 	    (cons :format "%v"
 		  (const :format "Other " other) (string :format "%v"))))
   :group 'c)
@@ -995,6 +1001,11 @@ The list of variables to buffer localize are:
 
 (defcustom pike-mode-hook nil
   "*Hook called by `pike-mode'."
+  :type 'hook
+  :group 'c)
+
+(defcustom nickle-mode-hook nil
+  "*Hook called by `nickle-mode'."
   :type 'hook
   :group 'c)
 
