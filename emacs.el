@@ -300,8 +300,7 @@
   (autoload 'page-mode "page-mode" "Page-oriented display" t)
 
 ; UTF-8
-  (prefer-coding-system 'utf-8)
-  (setq default-mime-charset 'utf-8)
+  (set-utf8)
 
 ; Thank you newer emacs for choosing the wrong default
   (setq inhibit-splash-screen t)
@@ -506,3 +505,7 @@
   "Insert a properly-formatted attachment line for FILE into an MH message."
   (interactive "*fAttachment: ")
   (insert (shell-command-to-string (concat mh-attach-command " \"" file "\""))))
+
+(defun set-utf8 ()
+  (prefer-coding-system 'utf-8-unix)
+  (setq default-mime-charset 'utf-8))
