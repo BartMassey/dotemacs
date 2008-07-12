@@ -1,6 +1,6 @@
 ;; Major Mode To Pick Football Games
 ;; Shawn Wolfe and Bart Massey 10/92
-;; Last hacked by Bart 10/93
+;; Last hacked by Bart 11/93
 
 ;This is a "full-featured" football-picks-mode for emacs.
 ;The only things it expects from the e-mail message containing
@@ -16,17 +16,13 @@
 ;	- The second line of the picks is a bunch of dashes
 ;	which "underline" the stuff in the first line.
 ;
-;	- There will be at least two columns separating each
-;	favorite team name from the spread value (don't ask).
+;	- At least two columns separate each favorite team name from
+;	the spread value (don't ask).
 ;
-;	- There will be no blank lines in the picks.  The picks
-;	will be followed by a blank line.
+;	- The picks end with the line  /^---$/ or at EOF.
 ;
 ;	- Lines starting /^[A-Za-z0-9]/ are picks.  All
-;	others aren't.
-;
-;All of the above assumptions except no blank lines in the
-;picks have been followed by your format so far.
+;	others aren't.  Blank lines are removed.
 ;
 ;To use this, save the emacs lisp code below in an emacs
 ;lisp library directory (personal or system) and then stick
@@ -125,16 +121,32 @@ The picks are e-mailed by the pool manager in a special format.
   (use-local-map football-picks-mode-map)
   (auto-save-mode nil)
   (football-picks-set-buffer-name)
-  (goto-char (point-min))
-  (forward-line 1)
-  (let (eol (point))
+  (save-excursion
+    (if (= football-picks-week -1)
+	(progn
+	 (goto-char (point-min))
+	 (forward-line 1)
+	 (let ((nl (point)))
+	   (goto-char (point-min))
+	   (let ((w (re-search-forward "[Ww]eek [0-9]+" nl t)))
+	     (if w
+		 (progn
+		  (goto-char (point-min))
+		  (re-search-forward "[Ww]eek " nl)
+		  (setq football-picks-week
+			(string-to-int (buffer-substring (point) w)))))))))
     (goto-char (point-min))
-    (re-search-forward "^- Favorite" eol nil)
-    (re-search-forward "- Underdog$" eol nil)
-    (setq football-picks-underdog-column (- (current-column) 10))
+    (forward-line 1)
+    (let (eol (point))
+      (goto-char (point-min))
+      (re-search-forward "^- Favorite" eol nil)
+      (re-search-forward "- Underdog$" eol nil)
+      (setq football-picks-underdog-column (- (current-column) 10))
+      )
     )
-  (goto-char (point-min))
-  (football-picks-next)
+  (beginning-of-line)
+  (if (not (football-picks-selection-char (char-after (point))))
+      (football-picks-next))
   )
 
 (defun football-picks ()
@@ -219,8 +231,11 @@ If the last line is empty, it is skipped on wrap."
     (re-search-forward "^Favorite" (point-max) nil)
     (beginning-of-line nil)
     (delete-region (point-min) (point))
-    (re-search-forward "^$")
+    (forward-line 2)
+    (re-search-forward "---" (point-max) 'move)
     (delete-region (point) (point-max))
+    (goto-char (point-min))
+    (delete-matching-lines "^[ 	]*$")
     ;; find underdog column
     (goto-char (point-min))
     (end-of-line nil)
@@ -298,7 +313,7 @@ If the last line is empty, it is skipped on wrap."
 ;  (replace-regexp "^" "  ")
   (goto-char (point-min))
   (insert "To: " football-picks-mail-addr "\n")
-  (insert "Subject: " football-picks-person
+  (insert "Subject: [pool] " football-picks-person
 	  "'s Picks (For Week " (football-picks-week-string) ")\n")
   (insert "--text follows this line--\n")
 ; (insert football-picks-person
