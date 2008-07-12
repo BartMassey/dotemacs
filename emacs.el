@@ -241,7 +241,6 @@
 	     (function (lambda ()
 			 (local-set-key "\t" 'indent-relative-close))))
 
->>>>>>> b49c0e845f05afc336618de7ae8f64d835b52327:emacs.el
 ;; ZETA Z environment
   (if xemacs
       (progn
@@ -457,7 +456,6 @@
 	  (move-marker opoint nil))
       (tab-to-tab-stop))))
 
->>>>>>> b49c0e845f05afc336618de7ae8f64d835b52327:emacs.el
 (defun html-outline-level ()
   "Create a new level in an HTML outline."
   (interactive)
