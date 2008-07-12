@@ -1,6 +1,5 @@
 (defun my-init ()
 
-  (defvar new-emacs (null (string-match "18.*" emacs-version)))
   (defvar xemacs (string-match "Xemacs\\|Lucid" emacs-version))
 
 ;; make sure things get loaded correctly
@@ -26,9 +25,7 @@
 ;  (global-set-key "\C-n" 'safe-next-line)
 
 ; use cbreak mode
-  (if new-emacs
-    (set-input-mode nil t nil)
-    (set-input-mode nil t))
+  (set-input-mode nil t nil)
 
 ; don't leave a lot of garbage files around
   (setq make-backup-files nil)
@@ -135,8 +132,7 @@
 ;  (autoload 'find-ctag-other-window "ctags" nil t)
 
 ;; I've been playing with sml
-;  (if (not new-emacs)
-;    (load-library "sml-init"))
+;  (load-library "sml-init")
 
 ;; GNU Smalltalk
 ;  (add-to-list 'auto-mode-alist '("\\.st$" . smalltalk-mode))
@@ -189,21 +185,17 @@
   (global-set-key "\C-R" 'isearch-backward-regexp)
 
 ;; minibuffer setup
-  (if (not new-emacs)
-    (setq minibuffer-local-completion-map
-	  '(keymap
-	    (?? . minibuffer-completion-help)
-	    (9 . minibuffer-complete-word)
-	    (32 . minibuffer-complete)
-	    (10 . exit-minibuffer)
-	    (13 . exit-minibuffer)
-	    (7 . abort-recursive-edit)
-	    )
-	  )
-    )
+  (setq minibuffer-local-completion-map
+	'(keymap
+	  (?? . minibuffer-completion-help)
+	  (9 . minibuffer-complete-word)
+	  (32 . minibuffer-complete)
+	  (10 . exit-minibuffer)
+	  (13 . exit-minibuffer)
+	  (7 . abort-recursive-edit)))
 
 ;; stupid menu bar
-  (if (and new-emacs (not xemacs))
+  (if (not xemacs)
       (menu-bar-mode nil))
 
   (defalias 'read-only 'toggle-read-only)
@@ -286,7 +278,7 @@
   (add-hook 'LilyPond-mode-hook (lambda () (turn-on-font-lock)))
 
 ; Nickle mode
- (load "nickle-mode")
+; (load "nickle-mode")
 
 ; Weblogger
 ;; (init-weblogger)
