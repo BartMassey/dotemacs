@@ -9,23 +9,23 @@
 ;; swap backspace and delete
 ;; map ^\ to ^S
 ;; map ^^ to ^Q
-  (if (not xemacs)
-      (progn
-	(load "swap-keys")
-	(swap-meanings-of-keys
-	 (string-to-char "\C-\\")
-	 (string-to-char "\C-s"))
-	(swap-meanings-of-keys
-	 (string-to-char "\C-^")
-	 (string-to-char "\C-q"))
-	(swap-del-and-bs nil)))
+; (if (not xemacs)
+;     (progn
+;	(load "swap-keys")
+;	(swap-meanings-of-keys
+;	 (string-to-char "\C-\\")
+;	 (string-to-char "\C-s"))
+;	(swap-meanings-of-keys
+;	 (string-to-char "\C-^")
+;	 (string-to-char "\C-q"))))
+;	(swap-del-and-bs nil)
 
 ;;; make ^N not open a line
 ;  (load "safe-next-line")
 ;  (global-set-key "\C-n" 'safe-next-line)
 
 ; use cbreak mode
-  (set-input-mode nil t nil)
+; (set-input-mode nil t nil)
 
 ; don't leave a lot of garbage files around
   (setq make-backup-files nil)
