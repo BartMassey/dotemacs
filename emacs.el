@@ -536,3 +536,18 @@
   (setq file-coding-system-alist
 	(cons '("" . utf-8) file-coding-system-alist))
   (setq default-mime-charset 'utf-8))
+
+(defun fix-ikiwiki-links ()
+  "Replace spaces with underbars in all the ikiwiki links in the current buffer."
+  (interactive)
+  (goto-char (point-min))
+  (while (search-forward "[[" (point-max) t)
+    (let ((start (point))
+	  (max nil))
+      (end-of-line)
+      (setq max (point))
+      (goto-char start)
+      (setq end (search-forward "]]" max t))
+      (if end
+	  (replace-in-region start end " " "_")
+	(goto-char max)))))
