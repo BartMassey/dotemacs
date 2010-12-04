@@ -264,13 +264,13 @@
 
 
   ;; for Z/EVES mode
-  (setq load-path
-	(append load-path '("/local/apps/z-eves/system")))
-  (add-to-list 'auto-mode-alist '("\\.z" . z-latex-mode))
-  (add-to-list 'auto-mode-alist '("\\.zed" . z-latex-mode))
-  (autoload 'z-latex-mode "z-eves" "Z-EVES LaTeX mode." t)
-  (autoload 'run-z-eves "z-eves" "Run Z-EVES." t)
-  (setq z-eves-program "z-eves")
+;  (setq load-path
+;	(append load-path '("/local/apps/z-eves/system")))
+;  (add-to-list 'auto-mode-alist '("\\.z" . z-latex-mode))
+;  (add-to-list 'auto-mode-alist '("\\.zed" . z-latex-mode))
+;  (autoload 'z-latex-mode "z-eves" "Z-EVES LaTeX mode." t)
+;  (autoload 'run-z-eves "z-eves" "Run Z-EVES." t)
+;  (setq z-eves-program "z-eves")
 
 
 ; lilypond mode
