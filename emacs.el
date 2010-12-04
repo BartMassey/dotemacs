@@ -308,6 +308,13 @@
 
 ; Thank you newer emacs for choosing the wrong default
   (setq inhibit-splash-screen t)
+
+;; Proof general
+;  (proofgeneral)
+;  (add-hook 'coq-mode-hook
+;	    '(lambda ()
+;	       (local-set-key "\C-c\C-j" 'proof-goto-point)))
+
 )
 
 
