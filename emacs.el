@@ -252,12 +252,12 @@
 			  'html-outline-level)))
 
   ;; LaTeX mode outlines
-  (add-to-list 'auto-mode-alist '("\\.slide$" . latex-mode))
-  (add-hook 'latex-mode-hook
-	    '(lambda () (define-key
-			  tex-mode-map
-			  "\C-xl"
-			  'latex-outline-level)))
+;  (add-to-list 'auto-mode-alist '("\\.slide$" . latex-mode))
+;  (add-hook 'latex-mode-hook
+;	    '(lambda () (define-key
+;			  tex-mode-map
+;			  "\C-xl"
+;			  'latex-outline-level)))
 
   ;; get some suffixes right: Lex
   (add-to-list 'auto-mode-alist '("\\.l$" . c-mode))
