@@ -315,6 +315,9 @@
 ;	    '(lambda ()
 ;	       (local-set-key "\C-c\C-j" 'proof-goto-point)))
 
+;; Random line
+  (autoload 'random-line "random-line" "Go to a random line" t)
+  (global-set-key "\C-cr" 'random-line)
 )
 
 
