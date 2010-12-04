@@ -300,6 +300,9 @@
 ; Page mode
   (autoload 'page-mode "page-mode" "Page-oriented display" t)
 
+; Logic mode
+  (autoload 'logic-mode "logic-mode" "Entry of logic symbols" t)
+
 ; UTF-8
   (utf8-ify)
 
