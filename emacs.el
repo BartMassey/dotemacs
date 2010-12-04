@@ -551,3 +551,7 @@
       (if end
 	  (replace-in-region start end " " "_")
 	(goto-char max)))))
+      
+(defun copyright ()
+  (interactive)
+  (insert "Copyright © 2010 Bart Massey"))
