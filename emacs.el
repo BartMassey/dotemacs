@@ -114,6 +114,7 @@
   (global-set-key "\C-x\C-i" 'set-indent)
   (set-indent 4)
 ; (add-hook 'c-mode-hook (function (lambda () (set-indent 4))))
+  (add-hook 'c-mode-hook (function (lambda () (setq indent-tabs-mode nil))))
 
 ;; this is more important than "eval expression at point"
   (global-set-key "\C-X\C-E" 'my-compile)
