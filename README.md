@@ -11,3 +11,8 @@ should be good to go.
 This is unsupported, contains old versions of `emacs`
 standard tools, and is highly idiosyncratic. If you must use
 it, please read it carefully and edit to taste.
+
+# License
+
+This work is licensed under the "MIT License". Please see the file
+`LICENSE.txt` in this distribution for license terms.
