@@ -2,7 +2,7 @@
 
   (defvar xemacs (string-match "Xemacs\\|Lucid" emacs-version))
 
-;; make sure things get loaded correctly
+; make sure things get loaded correctly
   (setq load-path
 	(append (relative-paths "etc/emacs" "etc/emacs/gnus") load-path))
 
@@ -20,24 +20,24 @@
 ;	 (string-to-char "\C-q"))))
 ;	(swap-del-and-bs nil)
 
-;;; make ^N not open a line
+;; make ^N not open a line
 ;  (load "safe-next-line")
 ;  (global-set-key "\C-n" 'safe-next-line)
 
-; use cbreak mode
+;; use cbreak mode
 ; (set-input-mode nil t nil)
 
 ; don't leave a lot of garbage files around
   (setq make-backup-files nil)
   (setq vc-make-backup-files nil)
 
-; don't wrap lines
+;; don't wrap lines
 ;  (setq default-truncate-lines t)
 
 ; let me do lisp, please
   (put 'eval-expression 'disabled nil)
 
-; my news files aren't in a standard place
+;; my news files aren't in a standard place
 ;  (setq news-startup-file "$HOME/news/.newsrc")
 ;  (setq news-certification-file "$HOME/news/.news-dates")
 
@@ -49,7 +49,7 @@
 ; let me scroll down a line with ^N
   (setq scroll-step 1)
 
-; this can take *forever* to load...
+;; this can take *forever* to load...
 ;  (display-time)
 
 ; shell stuff
@@ -60,7 +60,7 @@
   (global-set-key "\C-Xp" 'prev-win)
   (global-set-key "\C-Xn" 'next-win)
   (global-set-key "\C-T" 'scroll-down)
-  (global-set-key "\ej" 'fill-paragraph)
+  (global-set-key "\ej" 'maybe-fill-paragraph)
   (global-set-key "\C-m" 'newline-and-indent)
   (global-set-key "\C-j" 'newline-and-indent)
   (global-set-key "\C-X4t" 'find-tag-other-window)
@@ -75,7 +75,7 @@
   (setq-default fill-column 60)
   (setq-default command-line-default-directory ".")
   (setq-default default-directory ".")
-; (add-hook find-file-hooks 'clear-buffer-default-directory)
+; (add-to-hook find-file-hooks (clear-buffer-default-directory))
 
 ; make sure we can flame on demand
   (autoload 'flame "flame" nil t)
@@ -97,95 +97,36 @@
   (setq require-final-newline t)
 
 ; put text mode in auto-indent, please
-  (add-hook 'text-mode-hook (function (lambda () (auto-fill-mode 1))))
+  (add-to-hook text-mode-hook (auto-fill-mode 1))
 
-; since regular expressions are also case-folded...
+;; since regular expressions are also case-folded...
   (setq case-fold-search nil)
-  (setq default-case-fold-search nil)
+  (customize-set-variable 'case-fold-search nil)
 
-;;; superceded by newer emacs version
-;;; make c-mode useable
-;;;  (autoload 'set-c-style "c-style" nil t)
-;;;  (setq c-tab-always-indent nil)
-;;;  (setq c-mode-hook '(lambda () 
-;;;		       (set-c-style) 
-;;;		       (local-set-key "\C-M" (function newline-and-indent))
-;;;		       ))
+;; Set default indent.
   (global-set-key "\C-x\C-i" 'set-indent)
   (set-indent 4)
-; (add-hook 'c-mode-hook (function (lambda () (set-indent 4))))
-  (add-hook 'c-mode-hook (function (lambda () (setq indent-tabs-mode nil))))
 
 ;; this is more important than "eval expression at point"
   (global-set-key "\C-X\C-E" 'my-compile)
   (global-set-key "\C-X\C-N" 'next-error)
   (global-set-key "\C-X\C-P" 'previous-error)
 
-;; GOT to be able to play that go-bang!
-;  (autoload 'gomoku "go-bang" nil t)
-
-;; Why?
-;  (autoload 'why "why" nil t)
-;  (global-set-key "\C-X\C-_" 'why)
-
-;; Use real tags instead of emacs tags
-;  (autoload 'find-ctag "ctags" nil t)
-;  (autoload 'find-ctag-other-window "ctags" nil t)
-
-;; I've been playing with sml
-;  (load-library "sml-init")
-
-;; GNU Smalltalk
-;  (add-to-list 'auto-mode-alist '("\\.st$" . smalltalk-mode))
-;  (autoload 'smalltalk-mode "st" "Major mode for editing Smalltalk code." t)
-
-;; GNUS is kinda neat
-;  (autoload 'gnus "gnus" "Read network news." t)
-;  (autoload 'gnus-post-news "gnuspost" "Post a network news article." t)
-;  (setq gnus-default-article-saver 'gnus-Subject-save-in-file)
-;  (setq gnus-article-save-directory "~/news")
-;  (setq gnus-use-generic-from t)
-;  (setq gnus-Info-directory "~/class/gnus/info")
-;  (setq gnus-novice-user nil)
-;  (setq gnus-save-all-headers t)
-;  (setq gnus-auto-select-first nil)
-;  (setq gnus-auto-select-next 'quietly)
-;  (setq gnus-break-pages nil)
-;  (setq gnus-mail-reply-method (function gnus-mail-reply-using-mhe))
-;  (setq gnus-mail-forward-method (function gnus-mail-reply-using-mhe))
-;  (setq gnus-local-timezone t)
-;  (let ((ev (getenv "NNTPSERVER")))
-;    (if ev
-;	(setq gnus-nntp-server ev)
-;      )
-;    )
-;  (setq gnus-Mark-article-hook
-;	(function
-;	 (lambda ()
-;	   (gnus-Subject-mark-as-unread gnus-current-article)
-;	   (gnus-Subject-set-current-mark "+")
-;	   )
-;	 )
-;	)
-
-;; I should integrate sortnewsrc with gnus-subscribe-newsgroup-method
-;; gnus-Article-prepare-hook seems perfect...
-
 ;; football picks
 ;  (autoload 'football-picks "football-picks" "Pick football games." t)
 ;  (autoload 'football-picks-mode "football-picks" "Football games picks mode." t)
   
-;; Bill Trost-isms follow...
+; Bill Trost-isms follow...
 
-;; just *let* us "narrow-to-region", dammit
+; just *let* us "narrow-to-region", dammit
   (put 'narrow-to-region 'disabled nil)
 
-;; more jove-isms
+; more jove-isms
   (global-set-key "\eg" 'goto-line)
   (global-set-key "\C-S" 'isearch-forward-regexp)
   (global-set-key "\C-R" 'isearch-backward-regexp)
 
-;; minibuffer setup
+; minibuffer setup
   (setq minibuffer-local-completion-map
 	'(keymap
 	  (?? . minibuffer-completion-help)
@@ -195,46 +136,39 @@
 	  (13 . exit-minibuffer)
 	  (7 . abort-recursive-edit)))
 
-;; stupid menu bar
+; stupid menu bar
   (if (not xemacs)
-      (menu-bar-mode nil))
+      (menu-bar-mode -1))
 
   (defalias 'read-only 'toggle-read-only)
 
-;; fixups for Scheme
+; fixups for Scheme
   (add-to-list 'auto-mode-alist '("\\.ss$" . scheme-mode))
-  (setq scheme-mode-hook
-	(function (lambda () 
-		    (define-key
-		      scheme-mode-map
-		      "\M-j"	
-	      (function indent-sexp)))))
+  (add-to-hook scheme-mode-hook
+     (define-key scheme-mode-map "\M-j"	(function indent-sexp)))
 
-;; HTML mode
+; HTML mode
 ;  (autoload 'html-mode "html-mode" "HTML major mode." t)
    (auto-invoke-mode "\\.html\\'" 'html-mode)
    (auto-invoke-mode "\\.htm\\'" 'html-mode)
 
-;; A jove-ism, really
+; A jove-ism, really
    (defalias 'read-only 'toggle-read-only)
 
-;; MH mode setup
+; MH mode setup
    (setq mh-progs "/pkgs/nmh/bin/")
    (setq mh-lib "/pkgs/nmh/etc/")
-   (add-hook 'mh-letter-mode-hook
-	     (function (lambda ()
-			 (local-set-key "\C-c\C-A" 'mh-insert-attachment))))
+   (add-to-hook mh-letter-mode-hook
+      (local-set-key "\C-c\C-A" 'mh-insert-attachment))
 
-;; The new TAB behavior for text is *almost* right...
-;; (see indent-relative-close below)
-   (add-hook 'mh-letter-mode-hook
-	     (function (lambda ()
-			 (local-set-key "\t" 'indent-relative-close))))
-   (add-hook 'text-mode-hook
-	     (function (lambda ()
-			 (local-set-key "\t" 'indent-relative-close))))
+; The new TAB behavior for text is *almost* right...
+; (see indent-relative-close below)
+   (add-to-hook mh-letter-mode-hook
+      (local-set-key "\t" 'indent-relative-close))
+   (add-to-hook text-mode-hook
+      (local-set-key "\t" 'indent-relative-close))
 
-;; ZETA Z environment
+; ZETA Z environment
   (if xemacs
       (progn
 	(setq zeta-dir (expand-file-name "/local/apps/zeta/"))
@@ -244,26 +178,20 @@
 	(require 'zeta-site-init
 		 (concat zeta-dir "lib/emacs/zeta-site-init.el"))))
 
-  ;; HTML mode outlines
-  (add-hook 'html-mode-hook
-	    '(lambda () (define-key
-			  html-mode-map
-			  "\C-xl"
-			  'html-outline-level)))
+; HTML mode outlines
+  (add-to-hook html-mode-hook
+     (define-key html-mode-map "\C-xl" 'html-outline-level))
 
-  ;; LaTeX mode outlines
+;; LaTeX mode outlines
 ;  (add-to-list 'auto-mode-alist '("\\.slide$" . latex-mode))
-;  (add-hook 'latex-mode-hook
-;	    '(lambda () (define-key
-;			  tex-mode-map
-;			  "\C-xl"
-;			  'latex-outline-level)))
+;  (add-to-hook latex-mode-hook
+;     (define-key tex-mode-map "\C-xl" 'latex-outline-level))
 
-  ;; get some suffixes right: Lex
+; get some suffixes right: Lex
   (add-to-list 'auto-mode-alist '("\\.l$" . c-mode))
 
 
-  ;; for Z/EVES mode
+;; for Z/EVES mode
 ;  (setq load-path
 ;	(append load-path '("/local/apps/z-eves/system")))
 ;  (add-to-list 'auto-mode-alist '("\\.z" . z-latex-mode))
@@ -276,29 +204,24 @@
 ; lilypond mode
   (autoload 'LilyPond-mode "lilypond-mode" "LilyPond Editing Mode" t)
   (add-to-list 'auto-mode-alist '("\\.ly$" . LilyPond-mode))
-  (add-hook 'LilyPond-mode-hook (lambda () (turn-on-font-lock)))
+  (add-to-hook LilyPond-mode-hook (turn-on-font-lock))
 
 ; Nickle mode
-; (load "nickle-mode")
+  (autoload 'nickle-mode "nickle-mode" "Nickle Mode" t)
+  (add-to-list 'auto-mode-alist '("\\.5c\\'" . nickle-mode))
 
-; Weblogger
-;; (init-weblogger)
-
-; Markdown
-  (add-to-list 'auto-mode-alist '("\\.mdwn$" . text-mode))
+;; Weblogger
+; (init-weblogger)
 
 ; Octave
   (add-to-list 'auto-mode-alist '("\\.m$" . octave-mode))
 
-; RefTeX and AucTeX
-;  (add-hook 'LaTeX-mode-hook 'turn-on-reftex)
+;; RefTeX and AucTeX
+;  (add-to-hook LaTeX-mode-hook (turn-on-reftex))
 ;  (load "auctex.el" nil t t)
 ;  (setq TeX-auto-save t)
 ;  (setq TeX-parse-self t)
 ;  (setq-default TeX-master nil)
-
-; Page mode
-  (autoload 'page-mode "page-mode" "Page-oriented display" t)
 
 ; Logic mode
   (autoload 'logic-mode "logic-mode" "Entry of logic symbols" t)
@@ -309,17 +232,180 @@
 ; Thank you newer emacs for choosing the wrong default
   (setq inhibit-splash-screen t)
 
-;; Proof general
-;  (proofgeneral)
-;  (add-hook 'coq-mode-hook
-;	    '(lambda ()
-;	       (local-set-key "\C-c\C-j" 'proof-goto-point)))
+; Coq via Proof General
+  (add-to-hook coq-mode-hook
+    (local-set-key "\C-c\C-m" 'proof-goto-point))
 
-;; Random line
+; Random line
   (autoload 'random-line "random-line" "Go to a random line" t)
   (global-set-key "\C-cr" 'random-line)
+
+; Tired of fighting with the tabs
+  (setq-default indent-tabs-mode nil)
+
+; Add wc-mode for writing
+  (require 'wc-mode)
+  (setq wc-modeline-format "%tww")
+  (add-to-hook text-mode-hook (wc-mode t))
+  (global-set-key "\C-cw" 'wc-mode)
+
+;; Screenwriter mode
+;  (require 'screenwriter)
+;  (add-to-list 'auto-mode-alist
+;	'("\\.play" . screenwriter-mode))
+
+; Org mode
+  (require 'org-install)
+  (add-to-list 'auto-mode-alist '("\\.org$" . org-mode))
+  (define-key global-map "\C-cl" 'org-store-link)
+  (define-key global-map "\C-ca" 'org-agenda)
+  (setq org-log-done t)
+
+; Improve Inform 7 editing
+  (add-to-list 'auto-mode-alist '("\\.ni" . i7-mode))
+  (add-to-list 'auto-mode-alist '("\\.i7x" . i7-mode))
+
+; Markdown mode
+  (autoload 'markdown-mode "markdown-mode"
+       "Major mode for editing Markdown files" t)
+  (add-to-list 'auto-mode-alist '("\\.markdown\\'" . markdown-mode))
+  (add-to-list 'auto-mode-alist '("\\.mdwn\\'" . markdown-mode))
+  (add-to-list 'auto-mode-alist '("\\.md\\'" . markdown-mode))
+  (add-to-list 'auto-mode-alist '("\\.mdlhs\\'" . markdown-mode))
+
+; Page mode
+  (autoload 'page-mode "page-mode" "Page-oriented display" t)
+  (add-to-list 'auto-mode-alist '("\\.p\\.txt$" . page-mode))
+  (add-to-list 'auto-mode-alist '("\\.p\\.md$" . page-markdown-mode))
+  (add-to-list 'auto-mode-alist '("\\.p\\.mdwn$" . page-markdown-mode))
+  (add-to-list 'auto-mode-alist '("\\.p\\.markdown$" . page-markdown-mode))
+
+; ASCIIdoc mode
+  (autoload 'adoc-mode "adoc-mode" "ASCIIdoc" t)
+  (add-to-list 'auto-mode-alist '("\\.adoc$" . adoc-mode))
+
+; Haskell mode
+  (add-hook 'haskell-mode-hook 'turn-on-haskell-doc-mode)
+  ; Choose one
+  ; (add-hook 'haskell-mode-hook 'turn-on-haskell-indentation)
+  (add-hook 'haskell-mode-hook 'turn-on-haskell-indent)
+  ; (add-hook 'haskell-mode-hook 'turn-on-haskell-simple-indent)
+  (eval-after-load "haskell-mode"
+    '(progn
+       (define-key haskell-mode-map (kbd "C-,") 'haskell-move-nested-left)
+       (define-key haskell-mode-map (kbd "C-.") 'haskell-move-nested-right)))
+
+;;   ; Enable MELPA support (http://github.com/milkypostman/melpa)
+;;   (require 'package)
+;;   (add-to-list 'package-archives '("tromey" . "http://tromey.com/elpa/"))
+;;   (add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/") t)
+;;   ;; For important compatibility libraries like cl-lib
+;;   (add-to-list 'package-archives '("gnu" . "http://elpa.gnu.org/packages/"))
+;;   (package-initialize)
+;;   (unless (package-installed-p 'use-package)
+;;     (package-refresh-contents)
+;;     (package-install 'use-package))
+
+  ;; https://robert.kra.hn/posts/rust-emacs-setup/
+  ;(load-library "custom")
+  ;(load-library "rust-init")
+
+  (load-library "rust-mode")
+  ;; https://fasterthanli.me/articles/the-bottom-emoji-breaks-rust-analyzer
+  ;(load-rust-stuff)
+
+  ;; Rustdoc edit mode.
+  ;(require 'separedit)
+  ;; Key binding for modes you want edit
+  ;; or simply bind ‘global-map’ for all.
+  ; (define-key prog-mode-map        (kbd "C-c '") #'separedit)
+  ; (define-key minibuffer-local-map (kbd "C-c '") #'separedit)
+  ;(define-key help-mode-map        (kbd "C-c '") #'separedit)
+  ;(define-key helpful-mode-map     (kbd "C-c '") #'separedit)
+  ;; Default major-mode for edit buffer
+  ;; can also be other mode e.g. ‘org-mode’.
+  ; (setq separedit-default-mode 'markdown-mode)
+  ;; Feature options
+  ;; (setq separedit-preserve-string-indentation t)
+  ;; (setq separedit-continue-fill-column t)
+  ;; (setq separedit-write-file-when-execute-save t)
+  ;; (setq separedit-remove-trailing-spaces-in-comment t)
+
+;; Replace M-j with new binding:
+  (global-set-key "\M-j" 'maybe-fill-paragraph)
+
+;; COBOL Mode!
+  (autoload 'cobol-mode "cobol-mode" "Major mode for highlighting COBOL files." t nil)
+
+  (setq auto-mode-alist
+        (append
+         '(("\\.cob\\'" . cobol-mode)
+           ("\\.cbl\\'" . cobol-mode)
+           ("\\.cpy\\'" . cobol-mode))
+         auto-mode-alist))
+
+;; sed mode!
+  (autoload 'sed-mode "sed-mode" "Major mode for editing sed scripts" t nil)
+  (setq auto-mode-alist
+        (append
+         '(("\\.sed\\'" . sed-mode))
+         auto-mode-alist))
 )
 
+(defun load-rust-stuff ()
+  ;; in `~/.emacs`
+
+  (require 'package)
+  (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/"))
+  (add-to-list 'package-archives '("gnu"   . "https://elpa.gnu.org/packages/"))
+
+  (package-initialize)
+  (unless (package-installed-p 'use-package)
+    (package-refresh-contents)
+    (package-install 'use-package))
+
+  (require 'use-package-ensure)
+  (setq use-package-always-ensure t)
+
+  (use-package rustic)
+  (use-package company)
+  (use-package lsp-mode
+      :ensure
+        :commands lsp
+          :custom
+            ;; what to use when checking on-save. "check" is default, I prefer clippy
+            (lsp-rust-analyzer-cargo-watch-command "clippy")
+            (lsp-eldoc-render-all t)
+            (lsp-idle-delay 0.6)
+            (lsp-rust-analyzer-server-display-inlay-hints t)
+            (lsp-log-io t)
+          :config
+            (add-hook 'lsp-mode-hook 'lsp-ui-mode))
+
+  (use-package lsp-ui
+      :ensure
+        :commands lsp-ui-mode
+          :custom
+            (lsp-ui-peek-always-show t)
+            (lsp-ui-sideline-enable nil)
+            (lsp-ui-doc-enable t))
+
+  (custom-set-variables
+    ;; custom-set-variables was added by Custom.
+    ;; If you edit it by hand, you could mess it up, so be careful.
+    ;; Your init file should contain only one such instance.
+    ;; If there is more than one, they won't work right.
+    '(package-selected-packages '(lsp-ui rustic lsp-mode ## cmake-mode)))
+  (custom-set-faces
+    ;; custom-set-faces was added by Custom.
+    ;; If you edit it by hand, you could mess it up, so be careful.
+    ;; Your init file should contain only one such instance.
+    ;; If there is more than one, they won't work right.
+    )
+  )
+
+(defmacro add-to-hook (hook &rest body)
+  `(add-hook (quote ,hook) (function (lambda () ,@body))))
 
 (defun next-win ()
   "Go to next window."
@@ -396,8 +482,8 @@
   "compile and point at first error message"
   (interactive "P")
   (if (not (null prefix))
-      (setq my-compilation-command (read-input "Command: ")))
-  (compile my-compilation-command)
+      (setq my-compilation-command (read-from-minibuffer "Command: ")))
+  (compile my-compilation-command t)
   (next-error))
 
 (defun auto-invoke-mode (pat mode)
@@ -501,7 +587,10 @@
   (interactive "P")
   (if INDENTATION
       (progn (setq c-basic-offset INDENTATION)
-	     (setq perl-indent-level INDENTATION))))
+	     (setq perl-indent-level INDENTATION)
+	     (setq sh-basic-offset INDENTATION)
+             (setq rust-indent-offset INDENTATION)
+             (setq pascal-indent-level INDENTATION))))
 
 (defun init-weblogger ()
   (load "xml-rpc")
@@ -551,7 +640,76 @@
       (if end
 	  (replace-in-region start end " " "_")
 	(goto-char max)))))
-      
+
 (defun copyright ()
+  "Insert a UTF-8 copyright notice for the current year."
   (interactive)
-  (insert "Copyright © 2010 Bart Massey"))
+  (insert (concat "Copyright © "
+		  (format-time-string "%Y" (current-time))
+		  " Bart Massey")))
+
+(defun Copyright ()
+  "Insert an ASCII copyright notice for the current year."
+  (interactive)
+  (insert (concat "Copyright (c) "
+		  (format-time-string "%Y" (current-time))
+		  " Bart Massey")))
+
+;;; From Trey Jackson
+;;; http://stackoverflow.com/questions/344966/sane-tab-in-emacs
+;(defvar just-tab-keymap (make-sparse-keymap) "Keymap for just-tab-mode")
+;(define-minor-mode just-tab-mode
+;  "Just want the TAB key to be a TAB"
+;  :global t :lighter " TAB" :init-value 0 :keymap just-tab-keymap
+;  (define-key just-tab-keymap (kbd "TAB") 'self-insert-command))
+
+(define-minor-mode i7-mode
+  "Set up some primitive formatting things to make writing Inform 7 easier. This is NOT a full-on Inform 7 mode."
+  :lighter " I7"
+  (visual-line-mode)
+  (local-set-key (kbd "TAB") 'self-insert-command))
+
+(defun hard-tabs ()
+  "Switch the current buffer to 8-space hard tabs for indentation."
+  (interactive)
+  (setq indent-tabs-mode t)
+  (set-indent 8))
+
+(defun soft-tabs ()
+  "Switch the current buffer to soft tabs for indentation."
+  (interactive)
+  (setq indent-tabs-mode nil))
+
+(defun page-markdown-mode ()
+  "Put the buffer in markdown mode with page mod on."
+  (interactive)
+  (markdown-mode)
+  (page-mode))
+
+;; https://www.emacswiki.org/emacs/UnfillParagraph
+;;; Stefan Monnier <foo at acm.org>. It is the opposite of fill-paragraph    
+(defun unfill-paragraph (&optional region)
+  "Takes a multi-line paragraph and makes it into a single line of text."
+  (interactive (progn (barf-if-buffer-read-only) '(t)))
+  (let ((fill-column (point-max))
+        ;; This would override `fill-column' if it's an integer.
+        (emacs-lisp-docstring-fill-column t))
+    (fill-paragraph nil region)))
+
+;; https://stackoverflow.com/a/1416207/364875
+(defun maybe-fill-paragraph (&optional justify region)
+  "Fill paragraph at or after point (see `fill-paragraph').
+
+Unfills paragraph if `visual-line-mode' is on."
+  (interactive (progn
+                 (barf-if-buffer-read-only)
+                 (list (if current-prefix-arg 'full) t)))
+  (if visual-line-mode
+      (unfill-paragraph region)
+    (fill-paragraph justify region)))
+
+(defun wrapped-text-mode ()
+  "Turn on conveniences for working with wrapped-paragraph text."
+  (interactive (progn
+                 (visual-line-mode t)
+                 (auto-fill-mode -1))))
